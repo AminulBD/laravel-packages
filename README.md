@@ -105,5 +105,4 @@ class Activator implements PackageActivationHandler
         return \App\Models\ActivatedExtensions::pluck('id')->toArray();
     }
 }
-
-## License
+```
