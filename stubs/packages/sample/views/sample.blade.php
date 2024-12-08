@@ -1,6 +1,6 @@
 <p>
   Hey <strong>{{ $name }}</strong>, <br>
-  I'm from /extensions/sample/views/sample.blade.php
+  I'm from /packages/sample/views/sample.blade.php
 </p>
 
 <p>

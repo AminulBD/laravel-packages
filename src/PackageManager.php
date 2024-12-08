@@ -134,7 +134,7 @@ class PackageManager
     }
 
     /**
-     * Map extension with default values.
+     * Map packages with default values.
      *
      * @param array $package
      *
