@@ -22,7 +22,7 @@ want.
 
 A sample package is provided in the `/packages` directory. You can create your own package in the same way.
 
-## Creating an Extension
+## Creating a Package
 
 To create an package, you need to create a directory in the `/packages` directory and then create a `index.php` file
 in it.
@@ -102,7 +102,7 @@ class Activator implements PackageActivationHandler
 
     public function enabled(): array
     {
-        return \App\Models\ActivatedExtensions::pluck('id')->toArray();
+        return \App\Models\ActivatedPackage::pluck('id')->toArray();
     }
 }
 ```
