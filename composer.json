@@ -1,0 +1,35 @@
+{
+  "name": "aminulbd/laravel-packages",
+  "description": "Packages for Laravel",
+  "version": "0.0.1",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["packages", "laravel"],
+  "support": {
+    "issues": "https://github.com/AminulBD/laravel-packages/issues",
+    "source": "https://github.com/AminulBD/laravel-packages"
+  },
+  "autoload": {
+    "psr-4": {
+      "AminulBD\\Package\\Laravel\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Aminul Islam",
+      "email": "me@aminul.net"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.0",
+    "laravel/framework": ">=9.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "AminulBD\\Package\\Laravel\\PackageServiceProvider"
+      ]
+    }
+  }
+}
