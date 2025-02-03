@@ -1,6 +1,20 @@
 # laravel-packages
 
-A simple Laravel package that provides a way to make laravel more modular and extendable.
+The **laravel-packages** package provides a straightforward solution for integrating modular and addon-based functionality into your Laravel application. This package allows you to organize your codebase by grouping related features or components into independent modules, making your application more maintainable, scalable, and easier to extend over time. Each module can have its own service providers, routes, controllers, views, migrations, and more (or a fullfeatured Laravel Application), ensuring clean separation of concerns within your application.
+
+### Key Features:
+- **Modular Architecture:** This package enables the separation of concerns by allowing you to treat different features or functionalities of your Laravel application as independent modules. Each module is self-contained with its own service providers, routes, controllers, views, migrations, and more. Also you can use a normal Laravel application as a package.
+  
+- **Dynamic Package Registration:** Easily register and load modules dynamically at runtime. You can manage which modules are enabled or disabled via configuration, providing flexible control over which parts of the app are active at any given time.
+
+- **Service Providers & Schedules:** Automatically register the service providers for each module and load their scheduled tasks. This ensures that modules are fully integrated into the Laravel lifecycle and their tasks are executed properly.
+
+
+### Use Cases:
+- **Modular App Design:** When building large-scale Laravel applications, especially those with multiple features or domains, you can separate the logic into independent modules. This helps keep the codebase clean, organized, and easier to maintain.
+
+- **Scalable Development:** By breaking the application into modules, development can be more scalable. Different teams can work on separate modules independently without interfering with the main application. You can even enable or disable certain features based on the environment or specific needs.
+
 
 ## Installation
 
@@ -38,7 +52,13 @@ return [
         'YourDomain\\Sample\\' => 'src/',
     ],
     // Service provider class of the package which must extends laravel's original service provider.
-    'provider' => YourDomain\Sample\SampleServiceProvider::class,
+    'provider' => [
+        YourDomain\Sample\SampleServiceProvider::class
+    ], // also you can pass as string,
+
+    'schedules' => [
+        // add your schedule file path
+    ],
 ];
 ```
 
