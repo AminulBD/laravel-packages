@@ -7,6 +7,5 @@ return [
     ],
     'provider' => [
         YourDomain\Sample\SampleServiceProvider::class
-    ],
-    'schedules' => []
+    ]
 ];
