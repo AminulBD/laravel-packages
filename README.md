@@ -15,6 +15,29 @@ The **laravel-packages** package provides a straightforward solution for integra
 
 - **Scalable Development:** By breaking the application into modules, development can be more scalable. Different teams can work on separate modules independently without interfering with the main application. You can even enable or disable certain features based on the environment or specific needs.
 
+- **Easy Plugin Development**  
+This package makes it simple to start plugin development within a Laravel application. You can generate a sample package using:
+
+   ```sh
+   php artisan vendor:publish --tag=laravel-packages
+   ```  
+
+   After developing and testing the plugin, publishing it is straightforward—just add the namespace and Provider in `composer.json` :
+   
+      ```json
+      "autoload": {
+          "psr-4": {
+              "YourDomain\\Sample\\": "src/"
+          }
+      },
+      "extra": {
+          "laravel": {
+              "providers": [
+                  "YourDomain\\Sample\\SampleServiceProvider"
+              ]
+          }
+      }
+      ```  
 ## Requirements
 
 - **Laravel** 9.x or higher
