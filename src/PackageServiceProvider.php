@@ -111,7 +111,7 @@ class PackageServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load enabled packages and register their providers and schedules.
+     * Load enabled packages and register their providers
      */
     private function loadEnabledPackages(array $enabled, array $packages, PackageManager $manager): void
     {
