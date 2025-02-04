@@ -7,7 +7,7 @@ The **laravel-packages** package provides a straightforward solution for integra
   
 - **Dynamic Package Registration:** Easily register and load modules dynamically at runtime. You can manage which modules are enabled or disabled via configuration, providing flexible control over which parts of the app are active at any given time.
 
-- **Service Providers & Schedules:** Automatically register the service providers for each module and load their scheduled tasks. This ensures that modules are fully integrated into the Laravel lifecycle and their tasks are executed properly.
+- **Service Providers:** Automatically register the service providers for each module. This ensures that modules are fully integrated into the Laravel lifecycle and their tasks are executed properly.
 
 
 ### Use Cases:
@@ -74,10 +74,6 @@ return [
     'provider' => [
         YourDomain\Sample\SampleServiceProvider::class
     ], // also you can pass as string,
-
-    'schedules' => [
-        // add your schedule file path
-    ]
 ];
 ```
 
