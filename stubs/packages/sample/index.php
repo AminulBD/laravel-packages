@@ -5,7 +5,5 @@ return [
     'autoload' => [
         'YourDomain\\Sample\\' => 'src/',
     ],
-    'provider' => [
-        YourDomain\Sample\SampleServiceProvider::class
-    ]
+    'provider' => YourDomain\Sample\SampleServiceProvider::class
 ];

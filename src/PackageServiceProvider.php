@@ -4,8 +4,6 @@ namespace AminulBD\Package\Laravel;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Facades\Artisan;
 
 class PackageServiceProvider extends ServiceProvider
 {
@@ -122,10 +120,9 @@ class PackageServiceProvider extends ServiceProvider
         // Load enabled packages
         $manager->load(array_keys($enabledPackages));
 
-        // Register providers and schedules for each enabled package
+        // Register providers for each enabled package
         foreach ($enabledPackages as $enabledPackage) {
             $this->registerPackageProviders($enabledPackage);
-            $this->registerPackageSchedules($enabledPackage);
         }
     }
 
@@ -134,31 +131,12 @@ class PackageServiceProvider extends ServiceProvider
      */
     private function registerPackageProviders(array $enabledPackage): void
     {
-        if (isset($enabledPackage['providers'])) {
-            $providers = (array) $enabledPackage['providers']; // Ensure providers is always an array
+        if (isset($enabledPackage['provider'])) {
+            $providers = (array) $enabledPackage['provider']; // Ensure providers is always an array
 
             foreach ($providers as $provider) {
                 $this->app->register($provider);
             }
-        }
-    }
-
-    /**
-     * Register package schedules.
-     */
-    private function registerPackageSchedules(array $enabledPackage): void
-    {
-        if (App::runningInConsole() && isset($enabledPackage['schedules'])) {
-            $schedulePaths = (array) $enabledPackage['schedules']; // Ensure schedules is always an array
-
-            // Register schedules for enabled package
-            $this->app->booted(function () use ($schedulePaths, $enabledPackage) {
-                $schedule = $this->app->make(Schedule::class);
-
-                foreach ($schedulePaths as $schedulePath) {
-                    include $enabledPackage['path'] . DIRECTORY_SEPARATOR . $schedulePath;
-                }
-            });
         }
     }
 
