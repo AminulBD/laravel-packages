@@ -33,7 +33,7 @@ class SampleServiceProvider extends ServiceProvider
 
             // Even you can register commands
             $this->commands([
-                SampleCommand::Class,
+                SampleCommand::class,
             ]);
         }
 
