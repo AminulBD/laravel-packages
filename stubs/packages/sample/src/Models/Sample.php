@@ -14,7 +14,7 @@ class Sample extends Model
     use HasFactory;
 
     /**
-     * The name of the models's corresponding factory.
+     * The name of the model's corresponding factory.
      *
      * @var class-string<TFactory>
      */
