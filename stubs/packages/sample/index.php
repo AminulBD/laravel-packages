@@ -7,5 +7,5 @@ return [
         'YourDomain\\Sample\\Seeders\\' => 'seeders/',
         'YourDomain\\Sample\\Factories\\' => 'factories/',
     ],
-    'provider' => YourDomain\Sample\SampleServiceProvider::class,
+    'provider' => YourDomain\Sample\SampleServiceProvider::class
 ];
