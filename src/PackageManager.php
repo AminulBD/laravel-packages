@@ -118,19 +118,8 @@ class PackageManager
      */
     private function autoload(string $namespace, string $path): void
     {
-        spl_autoload_register(function ($class) use ($namespace, $path) {
-            $len = strlen($namespace);
-            if (strncmp($namespace, $class, $len) !== 0) {
-                return;
-            }
-
-            $class = substr($class, $len);
-            $file = $path.DIRECTORY_SEPARATOR.str_replace('\\', '/', $class).'.php';
-
-            if (file_exists($file)) {
-                require $file;
-            }
-        });
+        // One shared autoloader per process instead of a new closure per namespace on every boot.
+        PackageAutoloader::add($namespace, $path);
     }
 
     /**
