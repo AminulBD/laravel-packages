@@ -60,8 +60,9 @@ class PackageServiceProvider extends ServiceProvider
         }
 
         $manager = $this->app->make(PackageManager::class);
-        $roots = config('packages.roots');
-        $nonForced = array_keys(array_filter($roots, fn ($root) => ! $root['forced']));
+        $roots = config('packages.roots') ?? [];
+        // A root without a `forced` key is not forced (used to raise "Undefined array key").
+        $nonForced = array_keys(array_filter($roots, fn ($root) => ! ($root['forced'] ?? false)));
         $packages = $manager->filterBy($nonForced);
 
         $available = array_filter($packages, fn ($ext) => in_array($ext['id'], $enabled));
