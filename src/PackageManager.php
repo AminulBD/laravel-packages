@@ -73,17 +73,35 @@ class PackageManager
     }
 
     /**
+     * Discover and register the packages matching the given glob patterns (root name => pattern).
+     *
      * @param array $paths
      *
      * @return void
      */
     public function register(array $paths): void
     {
+        $this->registerManifest($this->discover($paths));
+    }
+
+    /**
+     * Scan the given glob patterns (root name => pattern) without registering anything.
+     * The result is what `packages:cache` writes to the manifest.
+     *
+     * @param array<string, string> $paths
+     *
+     * @return array{packages: array<string, array>, unavailable: list<array>}
+     */
+    public function discover(array $paths): array
+    {
+        $packages = [];
+        $unavailable = [];
+
         foreach ($paths as $type => $path) {
             foreach ($this->files($path) as $file) {
                 try {
                     if (! is_array($ext = include $file) || ! isset($ext['id'])) {
-                        $this->unavailable[] = [
+                        $unavailable[] = [
                             'type' => $type,
                             'file' => $file,
                             'error' => 'Invalid package file.',
@@ -95,9 +113,9 @@ class PackageManager
                     $ext['path'] = dirname($file);
                     $ext['type'] = $type;
 
-                    $this->packages[$ext['id']] = $this->mapWithDefaults($ext);
+                    $packages[$ext['id']] = $this->mapWithDefaults($ext);
                 } catch (\Throwable $e) {
-                    $this->unavailable[] = [
+                    $unavailable[] = [
                         'type' => $type,
                         'file' => $file,
                         'error' => $e->getMessage(),
@@ -106,6 +124,24 @@ class PackageManager
                     continue;
                 }
             }
+        }
+
+        return ['packages' => $packages, 'unavailable' => $unavailable];
+    }
+
+    /**
+     * Register the result of discover() (e.g. read back from the cached manifest).
+     *
+     * @param array{packages?: array<string, array>, unavailable?: list<array>} $manifest
+     */
+    public function registerManifest(array $manifest): void
+    {
+        foreach ($manifest['packages'] ?? [] as $id => $package) {
+            $this->packages[$id] = $package;
+        }
+
+        foreach ($manifest['unavailable'] ?? [] as $entry) {
+            $this->unavailable[] = $entry;
         }
     }
 
