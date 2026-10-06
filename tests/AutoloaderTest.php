@@ -33,11 +33,12 @@ class AutoloaderTest extends TestCase
         $this->bootWith(['roots' => ['core' => $this->root('core', true)]]);
         $this->bootWith(['roots' => ['core' => $this->root('core', true)]]);
 
-        foreach (spl_autoload_functions() as $loader) {
-            if ($loader instanceof \Closure) {
-                $this->assertNotInstanceOf(PackageManager::class, (new \ReflectionFunction($loader))->getClosureThis());
-            }
-        }
+        $managers = array_filter(spl_autoload_functions(), function ($loader) {
+            return $loader instanceof \Closure && (new \ReflectionFunction($loader))->getClosureThis() instanceof PackageManager;
+        });
+
+        $this->assertSame([], $managers);
+        $this->assertTrue(PackageAutoloader::isRegistered());
     }
 
     public function test_the_longest_matching_prefix_wins_and_unknown_classes_fall_through(): void
