@@ -69,13 +69,15 @@ class PackageServiceProvider extends ServiceProvider
     }
 
     /**
-     * Autoload the packages and register their service providers in dependency order.
+     * Autoload the packages and register their service providers in dependency order. Packages whose `require`d
+     * packages are neither loaded nor part of this batch are skipped and listed in unavailable(), or throw when
+     * config('packages.strict') is true.
      *
      * @param  list<string>  $ids
      */
     protected function loadPackages(PackageManager $manager, array $ids): void
     {
-        $ids = $manager->sort($ids);
+        $ids = $manager->resolve($ids, $manager->loaded(), (bool) config('packages.strict', false));
         $manager->load($ids);
 
         foreach ($ids as $id) {
