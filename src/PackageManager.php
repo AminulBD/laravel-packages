@@ -15,6 +15,13 @@ class PackageManager
     private array $unavailable = [];
 
     /**
+     * Ids of loaded packages, in load order.
+     *
+     * @var array<string, true>
+     */
+    private array $loaded = [];
+
+    /**
      * @param string $id
      *
      * @return mixed|null
@@ -41,6 +48,31 @@ class PackageManager
     }
 
     /**
+     * Ids of the packages loaded so far, in load order (dependencies first).
+     *
+     * @return list<string>
+     */
+    public function loaded(): array
+    {
+        return array_keys($this->loaded);
+    }
+
+    public function isLoaded(string $id): bool
+    {
+        return isset($this->loaded[$id]);
+    }
+
+    /**
+     * Ids a package declares in its `require` key.
+     *
+     * @return list<string>
+     */
+    public function requires(string $id): array
+    {
+        return $this->packages[$id]['require'] ?? [];
+    }
+
+    /**
      * @param array $paths
      *
      * @return void
@@ -48,9 +80,7 @@ class PackageManager
     public function register(array $paths): void
     {
         foreach ($paths as $type => $path) {
-            $files = glob($path, GLOB_NOSORT);
-
-            foreach ($files as $file) {
+            foreach ($this->files($path) as $file) {
                 try {
                     if (! is_array($ext = include $file) || ! isset($ext['id'])) {
                         $this->unavailable[] = [
@@ -79,15 +109,18 @@ class PackageManager
         }
     }
 
+    /**
+     * Load (autoload) the given packages in dependency order.
+     *
+     * @param array|string $packages
+     *
+     * @return void
+     */
     public function load(array|string $packages): void
     {
         $packages = is_array($packages) ? $packages : [$packages];
-        foreach ($packages as $ext) {
-            if (! isset($this->packages[$ext])) {
-                continue;
-            }
-
-            $ext = $this->packages[$ext];
+        foreach ($this->sort($packages) as $id) {
+            $ext = $this->packages[$id];
             if (isset($ext['autoload'])) {
                 foreach ($ext['autoload'] as $namespace => $path) {
                     $path = rtrim($ext['path'], '/').'/'.$path;
@@ -95,7 +128,60 @@ class PackageManager
                     $this->autoload($namespace, $path);
                 }
             }
+
+            $this->loaded[$id] = true;
         }
+    }
+
+    /**
+     * Topological order of the given package ids: every package comes after the packages it requires.
+     * Ties are broken by id, so the order is the same on every machine. Requirements outside the given set
+     * are ignored here (see resolve()); unknown ids are dropped.
+     *
+     * @param list<string>|null $ids all registered packages when null
+     *
+     * @return list<string>
+     *
+     * @throws PackageDependencyException on a dependency cycle
+     */
+    public function sort(?array $ids = null): array
+    {
+        $ids = $ids === null ? array_keys($this->packages) : array_values(array_unique(array_map('strval', $ids)));
+        $ids = array_values(array_filter($ids, fn ($id) => isset($this->packages[$id])));
+
+        // Kahn's algorithm.
+        $pending = [];
+        $dependents = [];
+        foreach ($ids as $id) {
+            $requires = array_values(array_intersect(array_unique($this->requires($id)), $ids));
+            $pending[$id] = count($requires);
+            foreach ($requires as $required) {
+                $dependents[$required][] = $id;
+            }
+        }
+
+        $ready = array_keys(array_filter($pending, fn ($count) => $count === 0));
+        sort($ready, SORT_STRING);
+        $sorted = [];
+        while ($ready !== []) {
+            $id = array_shift($ready);
+            $sorted[] = $id;
+            foreach ($dependents[$id] ?? [] as $dependent) {
+                if (--$pending[$dependent] === 0) {
+                    $ready[] = $dependent;
+                    sort($ready, SORT_STRING);
+                }
+            }
+        }
+
+        if (count($sorted) !== count($ids)) {
+            $cycle = array_values(array_diff($ids, $sorted));
+            sort($cycle, SORT_STRING);
+
+            throw PackageDependencyException::cycle($cycle);
+        }
+
+        return $sorted;
     }
 
     /**
@@ -108,6 +194,20 @@ class PackageManager
         $keys = is_array($keys) ? $keys : [$keys];
 
         return array_filter($this->packages, fn ($ext) => in_array($ext['type'], $keys));
+    }
+
+    /**
+     * Package index files matching a glob pattern, in byte order so that every filesystem
+     * (APFS, ext4, NTFS...) yields the same order.
+     *
+     * @return list<string>
+     */
+    private function files(string $pattern): array
+    {
+        $files = glob($pattern, GLOB_NOSORT) ?: [];
+        sort($files, SORT_STRING);
+
+        return $files;
     }
 
     /**
@@ -131,7 +231,7 @@ class PackageManager
      */
     private function mapWithDefaults(array $package): array
     {
-        return array_merge([
+        $package = array_merge([
             'id' => null,
             'path' => null,
             'type' => null,
@@ -151,5 +251,9 @@ class PackageManager
             'autoload' => [],
             'config' => [],
         ], $package);
+
+        $package['require'] = array_values(array_map('strval', (array) $package['require']));
+
+        return $package;
     }
 }

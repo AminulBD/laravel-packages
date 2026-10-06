@@ -26,14 +26,8 @@ class PackageServiceProvider extends ServiceProvider
         $forced = array_keys(array_filter($roots, fn ($path) => $path['forced'] ?? false));
         $packages = $manager->filterBy($forced);
 
-        // load all forced packages
-        $manager->load(array_keys($packages));
-
-        foreach ($packages as $ext) {
-            if (isset($ext['provider'])) {
-                $this->app->register($ext['provider']);
-            }
-        }
+        // load all forced packages, dependencies first
+        $this->loadPackages($manager, array_keys($packages));
     }
 
     /**
@@ -71,11 +65,24 @@ class PackageServiceProvider extends ServiceProvider
         $packages = $manager->filterBy($nonForced);
 
         $available = array_filter($packages, fn ($ext) => in_array($ext['id'], $enabled));
-        $manager->load(array_keys($available));
+        $this->loadPackages($manager, array_keys($available));
+    }
 
-        foreach ($available as $ext) {
-            if (isset($ext['provider'])) {
-                $this->app->register($ext['provider']);
+    /**
+     * Autoload the packages and register their service providers in dependency order.
+     *
+     * @param  list<string>  $ids
+     */
+    protected function loadPackages(PackageManager $manager, array $ids): void
+    {
+        $ids = $manager->sort($ids);
+        $manager->load($ids);
+
+        foreach ($ids as $id) {
+            foreach ((array) ($manager->get($id)['provider'] ?? []) as $provider) {
+                if ($provider) {
+                    $this->app->register($provider);
+                }
             }
         }
     }

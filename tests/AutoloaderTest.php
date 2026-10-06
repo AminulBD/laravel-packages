@@ -24,7 +24,7 @@ class AutoloaderTest extends TestCase
 
         $this->assertSame($before, count(spl_autoload_functions()));
         $this->assertSame($prefixes, PackageAutoloader::prefixes());
-        $this->assertCount(3, $this->registered());
+        $this->assertSame(['acme.one', 'acme.three', 'acme.two'], $this->registered());
     }
 
     public function test_no_closure_keeps_an_old_package_manager_alive(): void
