@@ -32,6 +32,7 @@ handlers and `PackageManager` methods keep working. The behaviour changes are li
 - `PackageServiceProvider::roots()`, `paths()`, `enabled()`, `manifestPath()`.
 - `provider` in `index.php` may be a list of providers.
 - Orchestra Testbench test suite (`composer test`).
+- Agent skill `resources/boost/skills/laravel-packages-development/SKILL.md` (auto-discovered by Laravel Boost).
 
 ### Changed
 - `load()` loads the given packages in dependency order, not in the order given.

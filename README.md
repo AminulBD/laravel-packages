@@ -305,6 +305,16 @@ Consumers of your package can then publish these resources using:
 php artisan vendor:publish --tag=yourpackage
 ```
 
+## AI agent skill
+
+The package ships an agent skill at
+[`resources/boost/skills/laravel-packages-development/SKILL.md`](resources/boost/skills/laravel-packages-development/SKILL.md):
+how to create a package, `require` and load order, activation, caching and debugging with `packages:list`.
+
+- With [Laravel Boost](https://github.com/laravel/boost), `php artisan boost:install` picks it up automatically
+  (third-party packages' `resources/boost/skills`).
+- For other agents, copy the directory into the project's skills folder (e.g. `.claude/skills/`).
+
 ## Testing
 
 ```bash
